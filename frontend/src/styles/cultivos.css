@@ -1,0 +1,219 @@
+/* =========================================================
+   Módulos de cultivo en preparación
+   ========================================================= */
+
+.cultivo-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 30px;
+  align-items: center;
+  padding: 40px 42px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: radial-gradient(
+      90% 120% at 100% 0%,
+      rgba(217, 161, 47, 0.18),
+      transparent 55%
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f7f4ea 100%);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: rise 0.45s ease both;
+}
+
+.cultivo-hero::before {
+  content: "";
+  position: absolute;
+  right: -80px;
+  bottom: -110px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 1px solid rgba(47, 139, 91, 0.14);
+}
+
+.cultivo-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.cultivo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 4px 10px;
+  border: 1px solid var(--gold-500);
+  border-radius: 999px;
+  background: var(--gold-100);
+  color: var(--gold-600);
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cultivo-hero h2 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+}
+
+.cultivo-hero p {
+  max-width: 480px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.cultivo-hero-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.cultivo-art {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cultivo-art-orb {
+  display: grid;
+  place-items: center;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(210, 206, 192, 0.8);
+  color: var(--green-700);
+  box-shadow: inset 0 1px 0 #fff, 0 24px 50px -30px rgba(13, 43, 30, 0.4);
+  position: relative;
+}
+
+.cultivo-art-orb::before,
+.cultivo-art-orb::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(47, 139, 91, 0.25);
+}
+
+.cultivo-art-orb::before {
+  inset: -16px;
+}
+
+.cultivo-art-orb::after {
+  inset: -34px;
+  border-style: solid;
+  border-color: rgba(217, 161, 47, 0.18);
+}
+
+.cultivo-art-tag {
+  position: absolute;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-md);
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cultivo-art-tag strong {
+  color: var(--ink-2);
+  font-weight: 700;
+}
+
+.cultivo-art-tag.tag-1 {
+  top: 8%;
+  right: -4%;
+  transform: rotate(3deg);
+}
+
+.cultivo-art-tag.tag-2 {
+  bottom: 12%;
+  left: -8%;
+  transform: rotate(-3deg);
+}
+
+.cultivo-planned {
+  margin-top: 20px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  animation: rise 0.5s ease both;
+}
+
+.cultivo-planned h3 {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.cultivo-planned > p {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.planned-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.planned-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.planned-item .icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--green-600);
+}
+
+.planned-item strong {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.planned-item span {
+  display: block;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 860px) {
+  .cultivo-hero {
+    grid-template-columns: 1fr;
+    padding: 28px 24px;
+    gap: 26px;
+  }
+
+  .cultivo-art {
+    display: none;
+  }
+
+  .planned-grid {
+    grid-template-columns: 1fr;
+  }
+}

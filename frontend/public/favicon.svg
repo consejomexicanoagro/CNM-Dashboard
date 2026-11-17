@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CMA">
+  <rect width="64" height="64" rx="16" fill="#123a29" />
+  <path
+    d="M32 51V31"
+    stroke="#f1e7cf"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+  <path
+    d="M32 38c0-9 6-15 15-16-1 9-6 15-15 16Z"
+    fill="#d9a12f"
+  />
+  <path
+    d="M32 33c0-8-5-13-13-14 1 8 5 13 13 14Z"
+    fill="#6ee7a0"
+  />
+  <circle cx="32" cy="51" r="2.4" fill="#f1e7cf" />
+</svg>
