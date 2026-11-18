@@ -3,12 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta
       name="description"
       content="Prototipo de dictaminación de predios de silo para el Consejo Mexicano Agroempresarial."
     />
     <meta name="theme-color" content="#123a29" />
+    <script>
+      // Resuelve el tema antes del primer paint para evitar destellos.
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("cma.tema");
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : prefersDark
+                ? "dark"
+                : "light";
+
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+
+          if (meta) {
+            meta.setAttribute(
+              "content",
+              theme === "dark" ? "#0e1512" : "#123a29",
+            );
+          }
+        } catch (error) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
     <title>CMA · Dictaminación de Silo</title>
   </head>
   <body>

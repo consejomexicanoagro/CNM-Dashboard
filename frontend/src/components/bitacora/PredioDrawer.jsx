@@ -10,6 +10,7 @@ import {
   predioDensidad,
   predioElotePct,
 } from "../../utils/metrics";
+import { detallePredio, PAQUETE_LABEL } from "../../utils/analytics";
 
 /**
  * Ficha lateral con el detalle completo de un predio.
@@ -75,6 +76,8 @@ export default function PredioDrawer({ predio, onClose, onEdit, onDelete }) {
   const density = predioDensidad(predio);
   const elotePct = predioElotePct(predio);
   const relative = relativeCut(predio.fechaCorte);
+  const { zonaInfo, variedadInfo, regimenInfo, conPaquete, puntaje, semaforo } =
+    detallePredio(predio);
 
   return createPortal(
     <div className="drawer-layer">
@@ -88,9 +91,21 @@ export default function PredioDrawer({ predio, onClose, onEdit, onDelete }) {
       >
         <header className="drawer-head">
           <div>
-            <span className={`badge badge-${predio.dictamen}`}>
-              {predio.dictamen} · {dictamen?.nombre || "Dictamen"}
-            </span>
+            <div className="drawer-badges">
+              <span className={`badge badge-${predio.dictamen}`}>
+                {predio.dictamen} · {dictamen?.nombre || "Dictamen"}
+              </span>
+              <span
+                className="semaforo-pill"
+                style={{
+                  "--s-color": semaforo.color,
+                  "--s-soft": semaforo.suave,
+                }}
+              >
+                <span className="semaforo-dot" aria-hidden="true" />
+                {semaforo.nombre}
+              </span>
+            </div>
             <h2 id="predio-drawer-title">{predio.predio}</h2>
             <p>
               {predio.nombre} · {predio.telefono}
@@ -138,6 +153,51 @@ export default function PredioDrawer({ predio, onClose, onEdit, onDelete }) {
               <span>Corte estimado</span>
               <strong>{formatDate(predio.fechaCorte)}</strong>
             </div>
+            <div className="detail-item">
+              <span>Localidad</span>
+              <strong>{predio.localidad || "Sin localidad"}</strong>
+            </div>
+            <div className="detail-item">
+              <span>Zona de acopio</span>
+              <strong>
+                {zonaInfo ? `${zonaInfo.nombre} · ${zonaInfo.rango}` : "Sin zona"}
+              </strong>
+            </div>
+            <div className="detail-item">
+              <span>Variedad</span>
+              <strong>{variedadInfo?.nombre || "Sin variedad"}</strong>
+            </div>
+            <div className="detail-item">
+              <span>Régimen hídrico</span>
+              <strong>{regimenInfo?.nombre || "Sin régimen"}</strong>
+            </div>
+            <div className="detail-item">
+              <span>Paquete tecnológico</span>
+              <strong>{PAQUETE_LABEL[conPaquete ? "si" : "no"]}</strong>
+            </div>
+            <div className="detail-item">
+              <span>Puntaje de calidad</span>
+              <strong>{formatNumber(puntaje, 1)} / 100</strong>
+            </div>
+          </div>
+
+          <div className="detail-block">
+            <h3>Calidad del predio</h3>
+            <div className="progress-line">
+              <span
+                style={{
+                  width: `${Math.min(Math.max(puntaje, 0), 100)}%`,
+                  background: semaforo.color,
+                }}
+              />
+            </div>
+            <div className="progress-meta">
+              <span>
+                Dictamen {predio.dictamen} + {formatNumber(elotePct, 1)}% de
+                plantas con elote
+              </span>
+              <strong>{formatNumber(puntaje, 1)} pts</strong>
+            </div>
           </div>
 
           <div className="detail-block">
@@ -181,6 +241,14 @@ export default function PredioDrawer({ predio, onClose, onEdit, onDelete }) {
                 {relative.label}
               </span>
             </div>
+          </div>
+
+          <div className="detail-block">
+            <h3>Observaciones</h3>
+            <p className="detail-text">
+              {predio.observaciones ||
+                "Sin observaciones capturadas para este predio."}
+            </p>
           </div>
 
           <div className="detail-block">

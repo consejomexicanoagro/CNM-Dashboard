@@ -7,7 +7,7 @@
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #e9e7dd;
+  background: var(--map-bg);
 }
 
 .map-frame .predio-map,
@@ -18,7 +18,7 @@
 
 .leaflet-container {
   font-family: var(--font);
-  background: #e9e7dd;
+  background: var(--map-bg);
   outline: none;
 }
 
@@ -29,13 +29,13 @@
 .leaflet-control-attribution {
   padding: 1px 6px !important;
   border-radius: 6px 0 0 0;
-  background: rgba(255, 255, 255, 0.78) !important;
-  color: #7c8a82 !important;
+  background: var(--float-bg) !important;
+  color: var(--muted) !important;
   font-size: 9px !important;
 }
 
 .leaflet-control-attribution a {
-  color: #5d6d63 !important;
+  color: var(--muted) !important;
 }
 
 .leaflet-bar {
@@ -50,13 +50,13 @@
   height: 28px !important;
   line-height: 28px !important;
   border-bottom-color: var(--line) !important;
-  background: rgba(255, 255, 255, 0.96) !important;
+  background: var(--surface) !important;
   color: var(--ink-2) !important;
   font-size: 16px !important;
 }
 
 .leaflet-bar a:hover {
-  background: #fff !important;
+  background: var(--surface-hover) !important;
   color: var(--green-700) !important;
 }
 
@@ -121,7 +121,10 @@
 /* Popup */
 
 .leaflet-popup-content-wrapper {
+  border: 1px solid var(--line);
   border-radius: 12px !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
   box-shadow: 0 14px 36px -16px rgba(13, 43, 30, 0.5) !important;
 }
 
@@ -131,6 +134,7 @@
 }
 
 .leaflet-popup-tip {
+  background: var(--surface) !important;
   box-shadow: none !important;
 }
 
@@ -203,7 +207,7 @@
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--line);
-  background: #e9e7dd;
+  background: var(--map-bg);
 }
 
 .location-picker-shell.invalid {
@@ -220,9 +224,9 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border: 1px solid rgba(210, 206, 192, 0.8);
+  border: 1px solid var(--float-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--float-bg);
   color: var(--ink-2);
   font-size: 10px;
   font-weight: 600;
@@ -242,7 +246,7 @@
   z-index: 500;
   padding: 4px 8px;
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--float-bg);
   color: var(--muted);
   font-family: var(--mono);
   font-size: 9px;
@@ -259,9 +263,9 @@
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
-  border: 1px solid rgba(210, 206, 192, 0.8);
+  border: 1px solid var(--float-border);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--float-bg);
   color: var(--muted);
   font-size: 9.5px;
   font-weight: 600;
@@ -284,7 +288,7 @@
   font-size: 11px;
   text-align: center;
   background:
-    linear-gradient(rgba(233, 231, 221, 0.8), rgba(233, 231, 221, 0.8)),
+    linear-gradient(var(--map-pattern), var(--map-pattern)),
     repeating-linear-gradient(
       45deg,
       transparent 0 18px,
@@ -294,4 +298,14 @@
 
 .map-empty .icon {
   color: var(--green-600);
+}
+
+/* ---------------------------------------------------------
+   Tema oscuro
+   Las teselas de OpenStreetMap son claras por diseño; se
+   atenúan sin tocar pines, popups ni controles.
+   --------------------------------------------------------- */
+
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: brightness(0.62) contrast(0.95) saturate(0.65);
 }

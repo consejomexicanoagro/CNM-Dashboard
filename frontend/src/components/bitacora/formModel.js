@@ -13,6 +13,16 @@ import {
   DICTAMEN_MAP,
   DIAS_CORTE,
 } from "../../data/constants";
+import {
+  PAQUETE_DEFAULT,
+  PAQUETE_TECNOLOGICO,
+  REGIMENES_HIDRICOS,
+  REGIMEN_DEFAULT,
+  VARIEDADES,
+  VARIEDAD_DEFAULT,
+  ZONA_MAP,
+  zonaDeLocalidad,
+} from "../../data/catalogos";
 import { addDaysISO, todayISO } from "../../utils/dates";
 import { isValidCoordinate } from "../../utils/metrics";
 
@@ -22,6 +32,12 @@ import { isValidCoordinate } from "../../utils/metrics";
  * @property {string} telefono - Teléfono de contacto.
  * @property {string} predio - Nombre del predio.
  * @property {string} hectareas - Hectáreas como texto (input controlado).
+ * @property {string} localidad - Localidad del predio.
+ * @property {string} zona - Identificador de la zona de acopio.
+ * @property {string} variedad - Identificador de la variedad sembrada.
+ * @property {string} regimenHidrico - `temporal` o `riego`.
+ * @property {string} paqueteTecnologico - `si` o `no`.
+ * @property {string} observaciones - Observaciones generales del predio.
  * @property {string} fechaSiembra - Fecha ISO de siembra.
  * @property {string} fechaCorte - Fecha ISO estimada de corte.
  * @property {string} muestraPlantas - Plantas contadas como texto.
@@ -37,6 +53,15 @@ import { isValidCoordinate } from "../../utils/metrics";
  * @typedef {Partial<Record<keyof PredioForm, string>>} FormErrors
  */
 
+/** Identificadores válidos de variedad y régimen. */
+const VARIEDAD_IDS = new Set(VARIEDADES.map((variedad) => variedad.id));
+const REGIMEN_IDS = new Set(
+  REGIMENES_HIDRICOS.map((regimen) => regimen.id),
+);
+const PAQUETE_IDS = new Set(
+  PAQUETE_TECNOLOGICO.map((opcion) => opcion.id),
+);
+
 /**
  * Crea el estado inicial de una captura nueva.
  *
@@ -50,6 +75,12 @@ export function emptyForm() {
     telefono: "",
     predio: "",
     hectareas: "",
+    localidad: "",
+    zona: "",
+    variedad: VARIEDAD_DEFAULT,
+    regimenHidrico: REGIMEN_DEFAULT,
+    paqueteTecnologico: PAQUETE_DEFAULT,
+    observaciones: "",
     fechaSiembra: today,
     fechaCorte: addDaysISO(today, DIAS_CORTE),
     muestraPlantas: "",
@@ -74,6 +105,18 @@ export function toForm(predio) {
     telefono: predio.telefono || "",
     predio: predio.predio || "",
     hectareas: predio.hectareas != null ? String(predio.hectareas) : "",
+    localidad: predio.localidad || "",
+    zona: predio.zona || zonaDeLocalidad(predio.localidad) || "",
+    variedad: VARIEDAD_IDS.has(predio.variedad)
+      ? predio.variedad
+      : VARIEDAD_DEFAULT,
+    regimenHidrico: REGIMEN_IDS.has(predio.regimenHidrico)
+      ? predio.regimenHidrico
+      : REGIMEN_DEFAULT,
+    paqueteTecnologico: PAQUETE_IDS.has(predio.paqueteTecnologico)
+      ? predio.paqueteTecnologico
+      : PAQUETE_DEFAULT,
+    observaciones: predio.observaciones || "",
     fechaSiembra: predio.fechaSiembra || "",
     fechaCorte: predio.fechaCorte || "",
     muestraPlantas:
@@ -132,6 +175,22 @@ export function validate(form) {
     errors.fechaCorte = "El corte no puede ser anterior a la siembra.";
   }
 
+  if (!VARIEDAD_IDS.has(form.variedad)) {
+    errors.variedad = "Selecciona la variedad sembrada.";
+  }
+
+  if (!REGIMEN_IDS.has(form.regimenHidrico)) {
+    errors.regimenHidrico = "Indica si el predio es de temporal o riego.";
+  }
+
+  if (!ZONA_MAP[form.zona]) {
+    errors.zona = "Selecciona la zona de acopio del predio.";
+  }
+
+  if (!PAQUETE_IDS.has(form.paqueteTecnologico)) {
+    errors.paqueteTecnologico = "Indica si se aplicó paquete tecnológico.";
+  }
+
   const plantas = Number(form.muestraPlantas);
   const metros = Number(form.muestraMetros);
   const elote = Number(form.plantasConElote);
@@ -184,6 +243,12 @@ export function toPayload(form) {
     telefono: form.telefono.trim(),
     predio: form.predio.trim(),
     hectareas: Number(form.hectareas),
+    localidad: form.localidad.trim(),
+    zona: form.zona,
+    variedad: form.variedad,
+    regimenHidrico: form.regimenHidrico,
+    paqueteTecnologico: form.paqueteTecnologico,
+    observaciones: form.observaciones.trim(),
     fechaSiembra: form.fechaSiembra,
     fechaCorte: form.fechaCorte,
     muestraPlantas: Number(form.muestraPlantas),

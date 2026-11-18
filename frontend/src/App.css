@@ -23,8 +23,9 @@
       rgba(217, 161, 47, 0.16),
       transparent 60%
     ),
-    linear-gradient(180deg, #144232 0%, #0d2b1e 100%);
+    linear-gradient(180deg, var(--sidebar-from) 0%, var(--sidebar-to) 100%);
   overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .sidebar::after {
@@ -37,6 +38,13 @@
     rgba(255, 255, 255, 0.05),
     transparent 22%
   );
+}
+
+/* Botón y fondo del menú móvil: ocultos en escritorio. */
+
+.nav-toggle,
+.nav-backdrop {
+  display: none;
 }
 
 .brand {
@@ -256,9 +264,10 @@
   top: 0;
   z-index: 30;
   padding: 0 32px;
-  background: rgba(245, 243, 236, 0.82);
-  border-bottom: 1px solid rgba(210, 206, 192, 0.55);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
   backdrop-filter: blur(12px);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .topbar-inner {
@@ -299,6 +308,39 @@
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease,
+    color 0.18s ease, transform 0.18s ease;
+}
+
+.theme-toggle .icon {
+  flex: 0 0 auto;
+  color: var(--green-600);
+}
+
+.theme-toggle:hover {
+  border-color: var(--green-500);
+  background: var(--surface-hover);
+  color: var(--ink-2);
+}
+
+.theme-toggle:active {
+  transform: translateY(1px);
 }
 
 .env-pill {
@@ -465,23 +507,23 @@
     position: sticky;
     top: 0;
     inset: auto;
+    z-index: 50;
     width: 100%;
     height: auto;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
-    padding: 9px 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .sidebar::-webkit-scrollbar {
-    height: 0;
+    padding: 9px max(14px, env(safe-area-inset-right)) 9px
+      max(14px, env(safe-area-inset-left));
+    overflow: visible;
+    box-shadow: 0 12px 26px -20px rgba(0, 0, 0, 0.8);
   }
 
   .brand {
     padding: 0;
-    flex: 0 0 auto;
+    flex: 0 1 auto;
+    min-width: 0;
   }
 
   .brand-mark {
@@ -503,30 +545,108 @@
     display: none;
   }
 
-  .sidebar-nav {
-    flex-direction: row;
+  .nav-toggle {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    overflow-x: auto;
-    padding-bottom: 1px;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: background 0.18s ease, border-color 0.18s ease;
   }
 
-  .nav-label,
-  .nav-soon,
-  .sidebar-note {
-    display: none;
+  .nav-toggle .icon {
+    color: #f2d9a0;
+  }
+
+  .nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  /* Fondo que captura el toque fuera del menú y lo cierra. */
+
+  .sidebar.is-open .nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    border: 0;
+    background: rgba(6, 18, 12, 0.45);
+    cursor: default;
+    animation: fade 0.18s ease both;
+  }
+
+  .sidebar-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    max-height: calc(100dvh - 56px);
+    padding: 10px max(12px, env(safe-area-inset-right)) 14px
+      max(12px, env(safe-area-inset-left));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: linear-gradient(
+      180deg,
+      var(--sidebar-from) 0%,
+      var(--sidebar-to) 100%
+    );
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 44px -24px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  }
+
+  .sidebar.is-open .sidebar-nav {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-label {
+    display: block;
+    margin: 8px 10px 4px;
+  }
+
+  .nav-label:first-child {
+    margin-top: 0;
   }
 
   .nav-item {
-    width: auto;
-    white-space: nowrap;
-    padding: 7px 11px;
-    font-size: 12px;
+    width: 100%;
+    padding: 10px 11px;
+    font-size: 13px;
   }
 
   .nav-item .icon {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .nav-count {
+    margin-left: auto;
+  }
+
+  .sidebar-note {
+    display: block;
+    margin-top: 10px;
   }
 
   .app-main {
@@ -570,6 +690,60 @@
   }
 }
 
+@media (max-width: 720px) {
+  .theme-toggle-text {
+    display: none;
+  }
+
+  .theme-toggle {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .topbar-actions {
+    gap: 10px;
+  }
+
+  .app-content {
+    padding: 20px 14px 44px;
+  }
+
+  .topbar {
+    padding: 0 14px;
+  }
+
+  .page-head {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(23px, 6vw, 29px);
+  }
+
+  .page-head .page-sub {
+    font-size: 12px;
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+
+  .page-actions > .btn {
+    flex: 1 1 auto;
+  }
+
+  .producer-filter {
+    flex: 1 1 100%;
+  }
+
+  .producer-filter .select {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 @media (max-width: 560px) {
   .env-pill {
     display: none;
@@ -582,5 +756,159 @@
 
   .topbar-crumb {
     font-size: 11px;
+  }
+
+  .sidebar {
+    gap: 8px;
+    padding: 8px max(10px, env(safe-area-inset-right)) 8px
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .sidebar-nav {
+    gap: 2px;
+  }
+
+  .nav-item {
+    gap: 8px;
+    padding: 9px 10px;
+    font-size: 12.5px;
+  }
+
+  .nav-item .icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .topbar-inner {
+    min-height: 50px;
+  }
+
+  .app-content {
+    padding: 18px max(12px, env(safe-area-inset-right)) 40px
+      max(12px, env(safe-area-inset-left));
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text strong {
+    font-size: 13px;
+  }
+
+  .sidebar {
+    gap: 6px;
+    padding: 7px max(8px, env(safe-area-inset-right)) 7px
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .nav-item {
+    padding: 9px 10px;
+    font-size: 12.5px;
+  }
+
+  .nav-count {
+    min-width: 19px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 9.5px;
+  }
+
+  .topbar-crumb {
+    font-size: 10.5px;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .user-chip {
+    padding-left: 8px;
+  }
+
+  .app-content {
+    padding: 16px max(10px, env(safe-area-inset-right)) 36px
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .page-head h1 {
+    font-size: clamp(21px, 7vw, 26px);
+  }
+
+  .page-actions {
+    gap: 8px;
+  }
+
+  .page-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .user-chip {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 8px;
+  }
+
+  .topbar {
+    padding: 0 max(10px, env(safe-area-inset-right)) 0
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .app-content {
+    padding: 14px max(9px, env(safe-area-inset-right)) 32px
+      max(9px, env(safe-area-inset-left));
+  }
+
+  .btn {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 360px) {
+  .brand-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .brand-mark .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .nav-item {
+    padding: 9px 9px;
+    font-size: 12px;
+  }
+
+  .app-content {
+    padding: 12px max(8px, env(safe-area-inset-right)) 28px
+      max(8px, env(safe-area-inset-left));
+  }
+}
+
+/* Pantallas de poca altura (móviles en paisaje o plegables). */
+@media (max-height: 520px) and (orientation: landscape) {
+  .topbar-inner {
+    min-height: 46px;
+  }
+
+  .app-content {
+    padding-top: 14px;
+  }
+
+  .page-head {
+    margin-bottom: 14px;
   }
 }

@@ -12,10 +12,12 @@ import "./App.css";
 import "./styles/ui.css";
 import "./styles/dashboard.css";
 import "./styles/bitacora.css";
+import "./styles/productores.css";
 import "./styles/map.css";
 import "./styles/cultivos.css";
 
 import App from "./App.jsx";
+import ThemeProvider from "./store/ThemeProvider.jsx";
 import PrediosProvider from "./store/PrediosProvider.jsx";
 import ToastProvider from "./store/ToastProvider.jsx";
 
@@ -29,10 +31,12 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <PrediosProvider>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
-    </PrediosProvider>
+    <ThemeProvider>
+      <PrediosProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
+      </PrediosProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

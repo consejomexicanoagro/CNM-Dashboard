@@ -4,21 +4,32 @@
    ========================================================= */
 
 :root {
+  color-scheme: light;
+
   /* Superficies */
   --bg: #f5f3ec;
   --bg-soft: #efece3;
   --surface: #ffffff;
   --surface-2: #faf9f5;
+  --surface-hover: #fbfaf6;
+  --row-hover: #fbfaf6;
+  --tile-hover: rgba(255, 255, 255, 0.75);
+  --row-active: #f5fbf7;
+  --hover-tint: rgba(23, 35, 29, 0.05);
+  --hover-tint-strong: rgba(23, 35, 29, 0.08);
 
   /* Texto */
   --ink: #17231d;
   --ink-2: #35473e;
   --muted: #6d7d74;
   --muted-2: #8b998f;
+  --placeholder: #a3aea7;
 
   /* Líneas */
   --line: #e4e1d6;
   --line-strong: #d2cec0;
+  --row-line: #f0ede4;
+  --field-hover: #bdb8a8;
 
   /* Verde institucional */
   --green-900: #0d2b1e;
@@ -27,6 +38,8 @@
   --green-600: #226b47;
   --green-500: #2f8b5b;
   --green-100: #e3f2e9;
+  --green-soft: #f1f8f4;
+  --green-soft-border: #d6e8dd;
 
   /* Acentos */
   --gold-600: #a97a1b;
@@ -36,6 +49,57 @@
   --clay-100: #fae9e1;
   --danger: #b23a2c;
   --danger-100: #fbe9e6;
+  --danger-solid: #b23a2c;
+  --danger-solid-hover: #982f23;
+  --danger-field-bg: #fffafa;
+
+  /* Dictámenes de calidad */
+  --dictamen-cp1: #1c6b45;
+  --dictamen-cp1-soft: #e5f3eb;
+  --dictamen-1c: #a97a1b;
+  --dictamen-1c-soft: #f9efd6;
+  --dictamen-2c: #b4552f;
+  --dictamen-2c-soft: #faeae2;
+
+  /* Semáforo de productores */
+  --semaforo-verde: #1a6b45;
+  --semaforo-verde-soft: #e5f3eb;
+  --semaforo-amarillo: #9a6b11;
+  --semaforo-amarillo-soft: #f9efd6;
+  --semaforo-rojo: #a44f2b;
+  --semaforo-rojo-soft: #faeae2;
+
+  /* Zonas de acopio */
+  --zona-1: #1a5338;
+  --zona-1-soft: #e3f2e9;
+  --zona-2: #a97a1b;
+  --zona-2-soft: #f8eed2;
+  --zona-3: #b4552f;
+  --zona-3-soft: #fae9e1;
+  --zona-4: #3f6b8a;
+  --zona-4-soft: #e4eef5;
+  --zona-none: #8b998f;
+  --zona-none-soft: #efece3;
+
+  /* Capas flotantes, overlays y mapa */
+  --float-bg: rgba(255, 255, 255, 0.94);
+  --float-border: rgba(210, 206, 192, 0.8);
+  --overlay: rgba(10, 28, 20, 0.52);
+  --overlay-soft: rgba(10, 28, 20, 0.4);
+  --topbar-bg: rgba(245, 243, 236, 0.82);
+  --topbar-border: rgba(210, 206, 192, 0.55);
+  --map-bg: #e9e7dd;
+  --map-pattern: rgba(233, 231, 221, 0.8);
+  --column-track: linear-gradient(180deg, #f4f1e8, #faf9f5);
+  --orb-bg: rgba(255, 255, 255, 0.6);
+  --zone-tag-border: #d9e7ef;
+  --zone-tag-bg: #f1f7fa;
+  --zone-tag-color: #3f6b8a;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236d7d74' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  /* Barra lateral (siempre oscura) */
+  --sidebar-from: #144232;
+  --sidebar-to: #0d2b1e;
 
   /* Sombras */
   --shadow-sm: 0 1px 2px rgba(23, 35, 29, 0.05);
@@ -58,7 +122,6 @@
   --sidebar-w: 252px;
   --content-max: 1440px;
 
-  color-scheme: light;
   font-family: var(--font);
   font-size: 14px;
   line-height: 1.5;
@@ -70,6 +133,117 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ---------------------------------------------------------
+   Tema oscuro
+   Se aplica con `data-theme="dark"` en <html>. El script de
+   `index.html` lo resuelve antes del primer paint.
+   --------------------------------------------------------- */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Superficies */
+  --bg: #0e1512;
+  --bg-soft: #131c18;
+  --surface: #18231e;
+  --surface-2: #141d19;
+  --surface-hover: #1d2a24;
+  --row-hover: #1d2a24;
+  --tile-hover: rgba(255, 255, 255, 0.06);
+  --row-active: #163327;
+  --hover-tint: rgba(255, 255, 255, 0.06);
+  --hover-tint-strong: rgba(255, 255, 255, 0.1);
+
+  /* Texto */
+  --ink: #edf4f0;
+  --ink-2: #c6d5cc;
+  --muted: #95a79d;
+  --muted-2: #7b8d83;
+  --placeholder: #6b7d73;
+
+  /* Líneas */
+  --line: #2a3831;
+  --line-strong: #3a4a41;
+  --row-line: #233029;
+  --field-hover: #4a5c52;
+
+  /* Verde institucional */
+  --green-900: #06120c;
+  --green-800: #1f6a47;
+  --green-700: #56c48d;
+  --green-600: #67d39b;
+  --green-500: #7ce3ab;
+  --green-100: #142c22;
+  --green-soft: #12241c;
+  --green-soft-border: #244635;
+
+  /* Acentos */
+  --gold-600: #e2b055;
+  --gold-500: #f0c36b;
+  --gold-100: #33280f;
+  --clay: #eb9a6f;
+  --clay-100: #342017;
+  --danger: #f08b7d;
+  --danger-100: #3a1d19;
+  --danger-solid: #c34a3a;
+  --danger-solid-hover: #d05745;
+  --danger-field-bg: #2a1815;
+
+  /* Dictámenes de calidad */
+  --dictamen-cp1: #6fd6a2;
+  --dictamen-cp1-soft: #14301f;
+  --dictamen-1c: #e6b455;
+  --dictamen-1c-soft: #33280f;
+  --dictamen-2c: #e8926a;
+  --dictamen-2c-soft: #342017;
+
+  /* Semáforo de productores */
+  --semaforo-verde: #6fd6a2;
+  --semaforo-verde-soft: #14301f;
+  --semaforo-amarillo: #e6b455;
+  --semaforo-amarillo-soft: #33280f;
+  --semaforo-rojo: #e8926a;
+  --semaforo-rojo-soft: #342017;
+
+  /* Zonas de acopio */
+  --zona-1: #7fd6a8;
+  --zona-1-soft: #163023;
+  --zona-2: #e6b455;
+  --zona-2-soft: #33280f;
+  --zona-3: #e8926a;
+  --zona-3-soft: #342017;
+  --zona-4: #8ebfe0;
+  --zona-4-soft: #1a2c3a;
+  --zona-none: #9aaba1;
+  --zona-none-soft: #1d2a24;
+
+  /* Capas flotantes, overlays y mapa */
+  --float-bg: rgba(24, 35, 30, 0.94);
+  --float-border: rgba(58, 74, 65, 0.85);
+  --overlay: rgba(0, 0, 0, 0.66);
+  --overlay-soft: rgba(0, 0, 0, 0.55);
+  --topbar-bg: rgba(14, 21, 18, 0.82);
+  --topbar-border: rgba(42, 56, 49, 0.8);
+  --map-bg: #1b2620;
+  --map-pattern: rgba(27, 38, 32, 0.85);
+  --column-track: linear-gradient(180deg, #1b2620, #141d19);
+  --orb-bg: rgba(255, 255, 255, 0.04);
+  --zone-tag-border: #24404f;
+  --zone-tag-bg: #162a33;
+  --zone-tag-color: #8ebfe0;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2395a79d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+  /* Barra lateral */
+  --sidebar-from: #0f2a1e;
+  --sidebar-to: #071410;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px -16px rgba(0, 0, 0, 0.7),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.8);
+}
+
 *,
 *::before,
 *::after {
@@ -78,6 +252,7 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 body {
@@ -85,6 +260,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background: var(--bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 body.is-locked {

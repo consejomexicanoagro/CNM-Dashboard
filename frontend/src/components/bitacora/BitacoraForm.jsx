@@ -11,6 +11,14 @@ import {
   LOGISTICA_SUELO_TIPS,
   TRANSPORTE_LABEL,
 } from "../../data/constants";
+import {
+  PAQUETE_TECNOLOGICO,
+  REGIMENES_HIDRICOS,
+  VARIEDADES,
+  VARIEDAD_MAP,
+  ZONAS,
+  zonaDeLocalidad,
+} from "../../data/catalogos";
 import { addDaysISO } from "../../utils/dates";
 import { formatNumber } from "../../utils/metrics";
 import {
@@ -106,6 +114,30 @@ export default function BitacoraForm({ predio, onClose }) {
     if (!form.fechaSiembra) return;
 
     update("fechaCorte", addDaysISO(form.fechaSiembra, DIAS_CORTE));
+  };
+
+  /**
+   * Actualiza la localidad y asigna su zona de acopio cuando está catalogada.
+   *
+   * @param {string} localidad - Nombre de la localidad.
+   * @returns {void}
+   */
+  const handleLocalidad = (localidad) => {
+    const zona = zonaDeLocalidad(localidad);
+
+    setForm((prev) => ({
+      ...prev,
+      localidad,
+      zona: zona || prev.zona,
+    }));
+    setErrors((prev) => {
+      if (!prev.zona) return prev;
+
+      const next = { ...prev };
+      delete next.zona;
+
+      return next;
+    });
   };
 
   const sample = useMemo(() => calculateSample(form), [form]);
@@ -344,6 +376,128 @@ export default function BitacoraForm({ predio, onClose }) {
           <div className="form-section-head">
             <span className="step-num">3</span>
             <div>
+              <h3>Manejo agronómico</h3>
+              <p>Variedad, régimen hídrico y zona de acopio del predio.</p>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="field-variedad">
+                Variedad sembrada <span className="req">*</span>
+              </label>
+              <select
+                id="field-variedad"
+                className={`select${errors.variedad ? " invalid" : ""}`}
+                value={form.variedad}
+                onChange={(event) => update("variedad", event.target.value)}
+                aria-invalid={Boolean(errors.variedad)}
+                aria-describedby={
+                  errors.variedad ? "error-variedad" : undefined
+                }
+              >
+                {VARIEDADES.map((variedad) => (
+                  <option key={variedad.id} value={variedad.id}>
+                    {variedad.nombre}
+                  </option>
+                ))}
+              </select>
+              <span className="field-hint">
+                <Icon name="info" size={11} />
+                {VARIEDAD_MAP[form.variedad]?.descripcion}
+              </span>
+              <FieldError id="error-variedad" message={errors.variedad} />
+            </div>
+
+            <div className="field">
+              <span className="field-label" id="label-regimen">
+                Régimen hídrico <span className="req">*</span>
+              </span>
+              <div
+                className="segmented"
+                role="radiogroup"
+                aria-labelledby="label-regimen"
+                aria-describedby={
+                  errors.regimenHidrico ? "error-regimen" : undefined
+                }
+              >
+                {REGIMENES_HIDRICOS.map((regimen) => (
+                  <label
+                    key={regimen.id}
+                    className={`segment${
+                      form.regimenHidrico === regimen.id ? " is-selected" : ""
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="regimenHidrico"
+                      value={regimen.id}
+                      checked={form.regimenHidrico === regimen.id}
+                      onChange={() => update("regimenHidrico", regimen.id)}
+                    />
+                    <span>{regimen.nombre}</span>
+                  </label>
+                ))}
+              </div>
+              <FieldError id="error-regimen" message={errors.regimenHidrico} />
+            </div>
+
+            <div className="field">
+              <label htmlFor="field-localidad">Localidad</label>
+              <select
+                id="field-localidad"
+                className="select"
+                value={form.localidad}
+                onChange={(event) => handleLocalidad(event.target.value)}
+              >
+                <option value="">Selecciona la localidad</option>
+                {ZONAS.map((zona) => (
+                  <optgroup
+                    key={zona.id}
+                    label={`${zona.nombre} · ${zona.rango}`}
+                  >
+                    {zona.localidades.map((localidad) => (
+                      <option key={localidad} value={localidad}>
+                        {localidad}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <span className="field-hint">
+                <Icon name="mapPin" size={11} />
+                Al elegirla se asigna la zona automáticamente.
+              </span>
+            </div>
+
+            <div className="field">
+              <label htmlFor="field-zona">
+                Zona de acopio <span className="req">*</span>
+              </label>
+              <select
+                id="field-zona"
+                className={`select${errors.zona ? " invalid" : ""}`}
+                value={form.zona}
+                onChange={(event) => update("zona", event.target.value)}
+                aria-invalid={Boolean(errors.zona)}
+                aria-describedby={errors.zona ? "error-zona" : undefined}
+              >
+                <option value="">Selecciona la zona</option>
+                {ZONAS.map((zona) => (
+                  <option key={zona.id} value={zona.id}>
+                    {zona.nombre} · {zona.rango}
+                  </option>
+                ))}
+              </select>
+              <FieldError id="error-zona" message={errors.zona} />
+            </div>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <div className="form-section-head">
+            <span className="step-num">4</span>
+            <div>
               <h3>Muestreo de plantas</h3>
               <p>Cuenta plantas en un tramo y registra cuántas tienen elote.</p>
             </div>
@@ -464,7 +618,7 @@ export default function BitacoraForm({ predio, onClose }) {
 
         <section className="form-section">
           <div className="form-section-head">
-            <span className="step-num">4</span>
+            <span className="step-num">5</span>
             <div>
               <h3>Dictamen de calidad</h3>
               <p>Selecciona la categoría asignada al predio.</p>
@@ -506,7 +660,7 @@ export default function BitacoraForm({ predio, onClose }) {
 
         <section className="form-section">
           <div className="form-section-head">
-            <span className="step-num">5</span>
+            <span className="step-num">6</span>
             <div>
               <h3>Ubicación del predio</h3>
               <p>Marca el punto del predio sobre el mapa (OpenStreetMap).</p>
@@ -537,16 +691,81 @@ export default function BitacoraForm({ predio, onClose }) {
 
         <section className="form-section">
           <div className="form-section-head">
-            <span className="step-num">6</span>
+            <span className="step-num">7</span>
             <div>
-              <h3>Logística y notas</h3>
+              <h3>Paquete tecnológico y observaciones</h3>
               <p>
-                El acarreo del módulo Silo se realiza únicamente en camión.
+                Registra los insumos aplicados y cualquier detalle relevante
+                del predio.
               </p>
             </div>
           </div>
 
-          <div className="logistics-box">
+          <div className="form-grid">
+            <div className="field span-2">
+              <span className="field-label" id="label-paquete">
+                ¿Se aplicó paquete tecnológico? <span className="req">*</span>
+              </span>
+              <div
+                className="segmented"
+                role="radiogroup"
+                aria-labelledby="label-paquete"
+                aria-describedby={
+                  errors.paqueteTecnologico ? "error-paquete" : undefined
+                }
+              >
+                {PAQUETE_TECNOLOGICO.map((opcion) => (
+                  <label
+                    key={opcion.id}
+                    className={`segment${
+                      form.paqueteTecnologico === opcion.id ? " is-selected" : ""
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paqueteTecnologico"
+                      value={opcion.id}
+                      checked={form.paqueteTecnologico === opcion.id}
+                      onChange={() =>
+                        update("paqueteTecnologico", opcion.id)
+                      }
+                    />
+                    <span>{opcion.nombre}</span>
+                  </label>
+                ))}
+              </div>
+              <span className="field-hint">
+                <Icon name="package" size={11} />
+                Semilla certificada, fertilización, control de plagas y
+                asistencia técnica.
+              </span>
+              <FieldError
+                id="error-paquete"
+                message={errors.paqueteTecnologico}
+              />
+            </div>
+
+            <div className="field span-2">
+              <label htmlFor="field-observaciones">
+                Observaciones generales
+              </label>
+              <textarea
+                id="field-observaciones"
+                className="textarea"
+                value={form.observaciones}
+                onChange={(event) =>
+                  update("observaciones", event.target.value)
+                }
+                placeholder="Ej. Paquete completo con semilla certificada y fertilización; se detectó presencia leve de gusano…"
+              />
+              <span className="field-hint">
+                <Icon name="info" size={11} />
+                Se muestran en el panel de observaciones del productor.
+              </span>
+            </div>
+          </div>
+
+          <div className="logistics-box" style={{ marginTop: 14 }}>
             <div className="logistics-top">
               <span className="logistics-icon">
                 <Icon name="truck" size={17} />

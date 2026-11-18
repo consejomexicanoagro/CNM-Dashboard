@@ -5,13 +5,22 @@ import {
   LOGISTICA_DESTACADOS,
   TRANSPORTE_LABEL,
 } from "../data/constants";
+import { ZONAS } from "../data/catalogos";
 import {
   formatNumber,
-  groupByProductor,
   monthlyCuts,
   summarize,
   upcomingCuts,
 } from "../utils/metrics";
+import {
+  conteoSemaforo,
+  detallePredio,
+  puntajePromedio,
+  rankProductores,
+  resumenObservaciones,
+  resumenZonas,
+  semaforoPorPuntaje,
+} from "../utils/analytics";
 import { dateParts, relativeCut } from "../utils/dates";
 import Icon from "../components/ui/Icon";
 import KpiCard from "../components/dashboard/KpiCard";
@@ -19,19 +28,32 @@ import DonutChart from "../components/charts/DonutChart";
 import BarList from "../components/charts/BarList";
 import ColumnChart from "../components/charts/ColumnChart";
 import PredioMap from "../components/map/PredioMap";
+import ZonasCard from "../components/dashboard/ZonasCard";
+import PredioDetailList from "../components/dashboard/PredioDetailList";
+import ObservacionesCard from "../components/dashboard/ObservacionesCard";
+import RankingTable from "../components/productores/RankingTable";
+import SemaforoSummary from "../components/productores/SemaforoSummary";
+import ProductorPanels from "../components/productores/ProductorPanels";
 
 /**
- * Panel general con KPIs, distribución de calidad, superficie, cortes y mapa.
+ * Panel general con KPIs, calidad, zonas, muestreo por predio y cortes.
  *
  * @param {Object} props - Propiedades del panel.
  * @param {() => void} props.onNew - Abre el formulario de nueva dictaminación.
  * @param {() => void} [props.onOpenBitacora] - Navega a la bitácora.
+ * @param {() => void} [props.onOpenProductores] - Navega a la página de productores.
  * @param {(predio: Record<string, any>) => void} [props.onOpenPredio] - Abre la ficha de un predio.
  * @returns {React.JSX.Element} Panel general.
  */
-export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
+export default function Dashboard({
+  onNew,
+  onOpenBitacora,
+  onOpenProductores,
+  onOpenPredio,
+}) {
   const { predios } = usePredios();
   const [productor, setProductor] = useState("todos");
+  const [zona, setZona] = useState("todas");
 
   const productores = useMemo(
     () =>
@@ -41,7 +63,7 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
     [predios],
   );
 
-  const filtered = useMemo(
+  const scope = useMemo(
     () =>
       productor === "todos"
         ? predios
@@ -49,8 +71,37 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
     [predios, productor],
   );
 
+  const filtered = useMemo(
+    () =>
+      zona === "todas"
+        ? scope
+        : scope.filter((predio) =>
+            zona === "sin-zona" ? !predio.zona : predio.zona === zona,
+          ),
+    [scope, zona],
+  );
+
   const stats = useMemo(() => summarize(filtered), [filtered]);
-  const porProductor = useMemo(() => groupByProductor(filtered), [filtered]);
+  const ranking = useMemo(() => rankProductores(filtered), [filtered]);
+  const conteo = useMemo(() => conteoSemaforo(ranking), [ranking]);
+  const zonas = useMemo(() => resumenZonas(scope), [scope]);
+  const observaciones = useMemo(() => resumenObservaciones(filtered), [filtered]);
+  const puntaje = useMemo(() => puntajePromedio(filtered), [filtered]);
+  const semaforoGlobal = useMemo(
+    () => semaforoPorPuntaje(puntaje),
+    [puntaje],
+  );
+
+  const detalle = useMemo(
+    () =>
+      filtered
+        .map(detallePredio)
+        .sort(
+          (a, b) => b.puntaje - a.puntaje || b.elotePct - a.elotePct,
+        ),
+    [filtered],
+  );
+
   const months = useMemo(() => monthlyCuts(filtered, 6), [filtered]);
   const proximos = useMemo(() => upcomingCuts(filtered, 5), [filtered]);
 
@@ -69,30 +120,44 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
   const superficieData = useMemo(
     () =>
       productor === "todos"
-        ? porProductor.slice(0, 8).map((row) => ({
+        ? ranking.slice(0, 8).map((row) => ({
             label: row.nombre,
             value: row.hectareas,
           }))
-        : filtered
+        : detalle
             .map((predio) => ({
               label: predio.predio,
               value: Number(predio.hectareas) || 0,
             }))
             .sort((a, b) => b.value - a.value),
-    [productor, porProductor, filtered],
+    [productor, ranking, detalle],
   );
 
   const eloteData = useMemo(
     () =>
-      porProductor.slice(0, 8).map((row) => ({
-        label: row.nombre,
-        value: row.elotePct,
-      })),
-    [porProductor],
+      [...detalle]
+        .sort((a, b) => b.elotePct - a.elotePct)
+        .slice(0, 8)
+        .map((predio) => ({
+          label: predio.predio,
+          value: predio.elotePct,
+        })),
+    [detalle],
   );
 
   const year = new Date().getFullYear();
-  const scopedLabel = productor === "todos" ? "todos los predios" : productor;
+  const zonaEtiqueta =
+    zona === "todas"
+      ? null
+      : zona === "sin-zona"
+        ? "sin zona"
+        : ZONAS.find((item) => item.id === zona)?.nombre;
+  const scopedLabel = [
+    productor === "todos" ? "todos los productores" : productor,
+    zonaEtiqueta,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   if (predios.length === 0) {
     return (
@@ -143,8 +208,8 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           </span>
           <h1>Panel de dictaminación</h1>
           <p className="page-sub">
-            Resumen ejecutivo de {scopedLabel}: calidad, superficie, muestreo
-            de campo y cortes programados.
+            Resumen ejecutivo de {scopedLabel}: calidad, superficie, zonas,
+            muestreo por predio y cortes programados.
           </p>
         </div>
 
@@ -163,6 +228,26 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
                   {nombre}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div className="producer-filter">
+            <Icon name="mapPin" size={15} />
+            <select
+              className="select"
+              value={zona}
+              onChange={(event) => setZona(event.target.value)}
+              aria-label="Filtrar por zona"
+            >
+              <option value="todas">Todas las zonas</option>
+              {ZONAS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.nombre} · {item.rango}
+                </option>
+              ))}
+              {predios.some((predio) => !predio.zona) ? (
+                <option value="sin-zona">Sin zona</option>
+              ) : null}
             </select>
           </div>
 
@@ -221,13 +306,13 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
         <KpiCard
           icon="sparkles"
           tone="clay"
-          label="Calidad premium"
-          value={formatNumber(stats.premiumPct, 0)}
-          suffix="%"
+          label="Puntaje de calidad"
+          value={formatNumber(puntaje, 1)}
+          suffix="/100"
           sub={
             <>
-              <strong>{stats.premium}</strong> de {stats.total}{" "}
-              {stats.total === 1 ? "predio" : "predios"} con dictamen CP-1
+              Semáforo <strong>{semaforoGlobal.nombre}</strong> · 60% dictamen +
+              40% elote
             </>
           }
           delay={120}
@@ -273,7 +358,29 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           </div>
         </section>
 
-        <section className="card col-4" style={{ animationDelay: "100ms" }}>
+        <section className="card col-8" style={{ animationDelay: "100ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Zonas de acopio</h2>
+              <p className="card-sub">
+                Radio de 65 km desde el Rancho de Grupo Ganadero Delite,
+                Oriental, Puebla
+              </p>
+            </div>
+            <button
+              type="button"
+              className="card-link"
+              onClick={() => onOpenProductores?.()}
+            >
+              Ver productores
+              <Icon name="arrowRight" size={12} />
+            </button>
+          </div>
+
+          <ZonasCard zonas={zonas} active={zona} onSelect={setZona} />
+        </section>
+
+        <section className="card col-4" style={{ animationDelay: "140ms" }}>
           <div className="card-head">
             <div>
               <h2 className="card-title">
@@ -292,7 +399,7 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           />
         </section>
 
-        <section className="card col-4" style={{ animationDelay: "140ms" }}>
+        <section className="card col-4" style={{ animationDelay: "180ms" }}>
           <div className="card-head">
             <div>
               <h2 className="card-title">Cortes programados</h2>
@@ -304,9 +411,27 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           <ColumnChart data={months} highlightKey={months[0]?.key} />
         </section>
 
+        <section className="card col-4" style={{ animationDelay: "220ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Semáforo de productores</h2>
+              <p className="card-sub">Calidad alta, media y por revisar</p>
+            </div>
+            <button
+              type="button"
+              className="card-link"
+              onClick={() => onOpenProductores?.()}
+            >
+              Ver detalle
+              <Icon name="arrowRight" size={12} />
+            </button>
+          </div>
+          <SemaforoSummary conteo={conteo} productores={ranking} />
+        </section>
+
         <section
           className="card col-8 map-card"
-          style={{ animationDelay: "180ms" }}
+          style={{ animationDelay: "260ms" }}
         >
           <div className="card-head">
             <div>
@@ -343,7 +468,7 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           </div>
         </section>
 
-        <section className="card col-4" style={{ animationDelay: "220ms" }}>
+        <section className="card col-4" style={{ animationDelay: "300ms" }}>
           <div className="card-head">
             <div>
               <h2 className="card-title">Próximos cortes</h2>
@@ -390,13 +515,66 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           )}
         </section>
 
-        <section className="card col-7" style={{ animationDelay: "260ms" }}>
+        <section className="card col-8" style={{ animationDelay: "340ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Detalle por predio</h2>
+              <p className="card-sub">
+                Superficie, siembra, elote y puntaje separados en cada predio
+              </p>
+            </div>
+            <span className="badge badge-neutral plain">
+              {detalle.length} {detalle.length === 1 ? "predio" : "predios"}
+            </span>
+          </div>
+          <PredioDetailList predios={detalle} onOpenPredio={onOpenPredio} />
+        </section>
+
+        <section className="card col-4" style={{ animationDelay: "380ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Observaciones</h2>
+              <p className="card-sub">
+                Paquete tecnológico y notas de campo
+              </p>
+            </div>
+            <span className="badge badge-neutral plain">
+              {observaciones.conObservaciones}
+            </span>
+          </div>
+          <ObservacionesCard
+            resumen={observaciones}
+            onOpenPredio={onOpenPredio}
+          />
+        </section>
+
+        <section className="card col-7" style={{ animationDelay: "420ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Ranking de calidad</h2>
+              <p className="card-sub">Los cinco mejores productores del filtro</p>
+            </div>
+            <button
+              type="button"
+              className="card-link"
+              onClick={() => onOpenProductores?.()}
+            >
+              Ver ranking completo
+              <Icon name="arrowRight" size={12} />
+            </button>
+          </div>
+          <RankingTable
+            productores={ranking}
+            onSelect={setProductor}
+            limit={5}
+          />
+        </section>
+
+        <section className="card col-5" style={{ animationDelay: "460ms" }}>
           <div className="card-head">
             <div>
               <h2 className="card-title">Plantas con elote</h2>
-              <p className="card-sub">
-                Porcentaje de la muestra de campo por productor
-              </p>
+              <p className="card-sub">Porcentaje de la muestra en cada predio</p>
             </div>
             <span className="badge badge-neutral plain">
               Muestra: {formatNumber(stats.densidad, 1)} plantas/m
@@ -411,14 +589,38 @@ export default function Dashboard({ onNew, onOpenBitacora, onOpenPredio }) {
           <div className="sample-note">
             <Icon name="info" size={13} />
             <span>
-              El indicador compara las plantas con elote contra las plantas
-              contadas en la muestra de cada predio. Un valor más alto sugiere
-              mejor llenado y uniformidad.
+              Cada barra es un predio. Compara el porcentaje de plantas con
+              elote contra las plantas contadas en su propia muestra.
             </span>
           </div>
         </section>
 
-        <section className="card col-5" style={{ animationDelay: "300ms" }}>
+        <section className="card col-12" style={{ animationDelay: "500ms" }}>
+          <div className="card-head">
+            <div>
+              <h2 className="card-title">Detalle por productor</h2>
+              <p className="card-sub">
+                Predios separados dentro de cada productor, con su propia
+                superficie y muestreo
+              </p>
+            </div>
+            <button
+              type="button"
+              className="card-link"
+              onClick={() => onOpenProductores?.()}
+            >
+              Ver todos los productores
+              <Icon name="arrowRight" size={12} />
+            </button>
+          </div>
+          <ProductorPanels
+            productores={ranking}
+            onOpenPredio={onOpenPredio}
+            limit={productor === "todos" ? 3 : undefined}
+          />
+        </section>
+
+        <section className="card col-12" style={{ animationDelay: "540ms" }}>
           <div className="card-head">
             <div>
               <h2 className="card-title">Antes de cortar</h2>

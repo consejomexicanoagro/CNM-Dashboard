@@ -2,6 +2,12 @@ import { useMemo, useState } from "react";
 import { usePredios } from "../store/prediosContext";
 import { useToast } from "../store/toastContext";
 import { DICTAMENES, TRANSPORTE_LABEL } from "../data/constants";
+import {
+  REGIMEN_MAP,
+  VARIEDAD_MAP,
+  ZONA_MAP,
+  ZONAS,
+} from "../data/catalogos";
 import { formatDate, todayISO } from "../utils/dates";
 import {
   formatNumber,
@@ -9,6 +15,7 @@ import {
   predioDensidad,
   predioElotePct,
 } from "../utils/metrics";
+import { detallePredio, PAQUETE_LABEL } from "../utils/analytics";
 import { downloadCsv } from "../utils/csv";
 import Icon from "../components/ui/Icon";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
@@ -78,6 +85,7 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
   const [query, setQuery] = useState("");
   const [calidad, setCalidad] = useState("todas");
   const [productor, setProductor] = useState("todos");
+  const [zona, setZona] = useState("todas");
   const [selectedId, setSelectedId] = useState(
     () => focusRequest?.id || null,
   );
@@ -126,12 +134,21 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
       .filter((predio) => {
         if (calidad !== "todas" && predio.dictamen !== calidad) return false;
         if (productor !== "todos" && predio.nombre !== productor) return false;
+        if (
+          zona !== "todas" &&
+          (zona === "sin-zona" ? predio.zona : predio.zona !== zona)
+        ) {
+          return false;
+        }
         if (!term) return true;
 
         return [
           predio.nombre,
           predio.predio,
           predio.telefono,
+          predio.localidad,
+          VARIEDAD_MAP[predio.variedad]?.nombre,
+          ZONA_MAP[predio.zona]?.nombre,
           predio.ubicacion?.referencia,
           predio.dictamen,
         ].some((value) => String(value || "").toLowerCase().includes(term));
@@ -139,7 +156,7 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
       .sort((a, b) =>
         String(b.createdAt || "").localeCompare(String(a.createdAt || "")),
       );
-  }, [predios, query, calidad, productor]);
+  }, [predios, query, calidad, productor, zona]);
 
   const totals = useMemo(
     () => ({
@@ -148,6 +165,9 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
         0,
       ),
       premium: filtered.filter((predio) => predio.dictamen === "CP-1").length,
+      conPaquete: filtered.filter(
+        (predio) => predio.paqueteTecnologico === "si",
+      ).length,
     }),
     [filtered],
   );
@@ -158,7 +178,10 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
   );
 
   const hasFilters =
-    query.trim() !== "" || calidad !== "todas" || productor !== "todos";
+    query.trim() !== "" ||
+    calidad !== "todas" ||
+    productor !== "todos" ||
+    zona !== "todas";
 
   /**
    * Restablece la búsqueda y todos los filtros.
@@ -169,6 +192,7 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
     setQuery("");
     setCalidad("todas");
     setProductor("todos");
+    setZona("todas");
   };
 
   /**
@@ -200,7 +224,12 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
       "Productor",
       "Teléfono",
       "Predio",
+      "Localidad",
+      "Zona",
       "Hectáreas",
+      "Variedad",
+      "Régimen hídrico",
+      "Paquete tecnológico",
       "Fecha de siembra",
       "Fecha de corte",
       "Plantas contadas",
@@ -208,33 +237,48 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
       "Plantas con elote",
       "Densidad (plantas/m)",
       "% con elote",
+      "Puntaje de calidad",
+      "Semáforo",
       "Dictamen",
       "Logística",
       "Latitud",
       "Longitud",
       "Referencia",
+      "Observaciones",
       "Notas",
     ];
 
-    const rows = filtered.map((predio) => [
-      predio.nombre,
-      predio.telefono,
-      predio.predio,
-      predio.hectareas,
-      predio.fechaSiembra,
-      predio.fechaCorte,
-      predio.muestraPlantas,
-      predio.muestraMetros,
-      predio.plantasConElote,
-      predioDensidad(predio).toFixed(2),
-      predioElotePct(predio).toFixed(1),
-      predio.dictamen,
-      TRANSPORTE_LABEL,
-      predio.ubicacion?.lat,
-      predio.ubicacion?.lng,
-      predio.ubicacion?.referencia,
-      predio.notas,
-    ]);
+    const rows = filtered.map((predio) => {
+      const detalle = detallePredio(predio);
+
+      return [
+        predio.nombre,
+        predio.telefono,
+        predio.predio,
+        predio.localidad,
+        ZONA_MAP[predio.zona]?.nombre || "Sin zona",
+        predio.hectareas,
+        VARIEDAD_MAP[predio.variedad]?.nombre || "",
+        REGIMEN_MAP[predio.regimenHidrico]?.nombre || "",
+        PAQUETE_LABEL[predio.paqueteTecnologico] || "",
+        predio.fechaSiembra,
+        predio.fechaCorte,
+        predio.muestraPlantas,
+        predio.muestraMetros,
+        predio.plantasConElote,
+        predioDensidad(predio).toFixed(2),
+        predioElotePct(predio).toFixed(1),
+        detalle.puntaje.toFixed(1),
+        detalle.semaforo.nombre,
+        predio.dictamen,
+        TRANSPORTE_LABEL,
+        predio.ubicacion?.lat,
+        predio.ubicacion?.lng,
+        predio.ubicacion?.referencia,
+        predio.observaciones,
+        predio.notas,
+      ];
+    });
 
     downloadCsv(`bitacora-silo-${todayISO()}`, headers, rows);
 
@@ -295,6 +339,10 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
           <strong>{totals.premium}</strong> con dictamen CP-1
         </span>
         <span className="summary-pill">
+          <Icon name="package" size={14} />
+          <strong>{totals.conPaquete}</strong> con paquete tecnológico
+        </span>
+        <span className="summary-pill">
           <Icon name="truck" size={14} />
           {TRANSPORTE_LABEL}
         </span>
@@ -326,6 +374,23 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                 {nombre}
               </option>
             ))}
+          </select>
+
+          <select
+            className="select toolbar-select"
+            value={zona}
+            onChange={(event) => setZona(event.target.value)}
+            aria-label="Filtrar por zona"
+          >
+            <option value="todas">Todas las zonas</option>
+            {ZONAS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.nombre} · {item.rango}
+              </option>
+            ))}
+            {predios.some((predio) => !predio.zona) ? (
+              <option value="sin-zona">Sin zona</option>
+            ) : null}
           </select>
 
           <div className="bitacora-filters">
@@ -372,6 +437,7 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                     <th scope="col">Superficie</th>
                     <th scope="col">Siembra / corte</th>
                     <th scope="col">Muestreo</th>
+                    <th scope="col">Manejo</th>
                     <th scope="col">Calidad</th>
                     <th scope="col" aria-label="Acciones" />
                   </tr>
@@ -380,6 +446,7 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                   {filtered.map((predio) => {
                     const density = predioDensidad(predio);
                     const elotePct = predioElotePct(predio);
+                    const detalle = detallePredio(predio);
 
                     return (
                       <tr
@@ -405,8 +472,11 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                         <td>
                           <div className="cell-stack">
                             <strong>{predio.predio}</strong>
-                            <span title={predio.ubicacion?.referencia}>
-                              {predio.ubicacion?.referencia || "Sin referencia"}
+                            <span
+                              title={predio.ubicacion?.referencia}
+                            >
+                              {predio.localidad || "Sin localidad"} ·{" "}
+                              {ZONA_MAP[predio.zona]?.nombre || "Sin zona"}
                             </span>
                           </div>
                         </td>
@@ -428,9 +498,28 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                           </div>
                         </td>
                         <td>
-                          <span className={`badge badge-${predio.dictamen}`}>
-                            {predio.dictamen}
-                          </span>
+                          <div className="cell-stack">
+                            <strong>
+                              {VARIEDAD_MAP[predio.variedad]?.nombre ||
+                                "Sin variedad"}
+                            </strong>
+                            <span>
+                              {REGIMEN_MAP[predio.regimenHidrico]?.nombre ||
+                                "Sin régimen"}{" "}
+                              ·{" "}
+                              {predio.paqueteTecnologico === "si"
+                                ? "Con paquete"
+                                : "Sin paquete"}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="cell-stack">
+                            <span className={`badge badge-${predio.dictamen}`}>
+                              {predio.dictamen}
+                            </span>
+                            <span>{formatNumber(detalle.puntaje, 1)} pts</span>
+                          </div>
                         </td>
                         <td>
                           <RowActions
@@ -476,7 +565,8 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                     <div className="record-card-predio">
                       <strong>{predio.predio}</strong>
                       <span>
-                        {predio.ubicacion?.referencia || "Sin referencia"}
+                        {predio.localidad || "Sin localidad"} ·{" "}
+                        {ZONA_MAP[predio.zona]?.nombre || "Sin zona"}
                       </span>
                     </div>
 
@@ -496,6 +586,26 @@ export default function Bitacora({ onCreate, onEdit, focusRequest }) {
                           {formatNumber(elotePct, 0)}%
                         </strong>
                       </div>
+                    </div>
+
+                    <div className="record-card-tags">
+                      <span className="tag">
+                        {VARIEDAD_MAP[predio.variedad]?.nombre ||
+                          "Sin variedad"}
+                      </span>
+                      <span className="tag">
+                        {REGIMEN_MAP[predio.regimenHidrico]?.nombre ||
+                          "Sin régimen"}
+                      </span>
+                      <span
+                        className={`tag${
+                          predio.paqueteTecnologico === "si" ? " is-on" : ""
+                        }`}
+                      >
+                        {predio.paqueteTecnologico === "si"
+                          ? "Con paquete"
+                          : "Sin paquete"}
+                      </span>
                     </div>
 
                     <div className="record-card-foot">

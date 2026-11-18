@@ -56,7 +56,7 @@ export default function BarList({
                 style={{
                   width: `${width}%`,
                   background: item.color
-                    ? `linear-gradient(90deg, ${item.color}, ${item.color}cc)`
+                    ? `linear-gradient(90deg, ${item.color}, color-mix(in srgb, ${item.color} 78%, transparent))`
                     : undefined,
                 }}
               />

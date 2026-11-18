@@ -5,6 +5,7 @@ import BitacoraForm from "./components/bitacora/BitacoraForm";
 import ConfirmDialog from "./components/ui/ConfirmDialog";
 import Dashboard from "./pages/Dashboard";
 import Bitacora from "./pages/Bitacora";
+import Productores from "./pages/Productores";
 import CultivoPlaceholder from "./pages/CultivoPlaceholder";
 import { CULTIVOS } from "./data/constants";
 import { usePredios } from "./store/prediosContext";
@@ -101,6 +102,7 @@ export default function App() {
 
   const currentLabel = useMemo(() => {
     if (page === "dashboard") return "Panel general";
+    if (page === "productores") return "Productores";
     if (page === "bitacora") return "Bitácora Silo";
 
     return cultivoActivo
@@ -133,6 +135,14 @@ export default function App() {
             <Dashboard
               onNew={openCreate}
               onOpenBitacora={() => navigate("bitacora")}
+              onOpenProductores={() => navigate("productores")}
+              onOpenPredio={openPredio}
+            />
+          ) : null}
+
+          {page === "productores" ? (
+            <Productores
+              onCreate={openCreate}
               onOpenPredio={openPredio}
             />
           ) : null}

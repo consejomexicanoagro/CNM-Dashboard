@@ -16,7 +16,7 @@
       rgba(217, 161, 47, 0.18),
       transparent 55%
     ),
-    linear-gradient(135deg, #ffffff 0%, #f7f4ea 100%);
+    linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   animation: rise 0.45s ease both;
@@ -90,10 +90,10 @@
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(210, 206, 192, 0.8);
+  background: var(--orb-bg);
+  border: 1px solid var(--line-strong);
   color: var(--green-700);
-  box-shadow: inset 0 1px 0 #fff, 0 24px 50px -30px rgba(13, 43, 30, 0.4);
+  box-shadow: 0 24px 50px -30px rgba(13, 43, 30, 0.4);
   position: relative;
 }
 
@@ -120,7 +120,7 @@
   padding: 5px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: var(--shadow-md);
   color: var(--muted);
   font-size: 9.5px;
@@ -215,5 +215,30 @@
 
   .planned-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .cultivo-hero {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .cultivo-hero h2 {
+    font-size: clamp(24px, 7vw, 30px);
+  }
+
+  .cultivo-hero-actions {
+    flex-wrap: wrap;
+  }
+
+  .cultivo-hero-actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .cultivo-planned {
+    padding: 18px;
+    border-radius: 16px;
   }
 }

@@ -43,7 +43,7 @@ function escapeHtml(value) {
  * @returns {L.DivIcon} Icono de Leaflet.
  */
 function markerIcon(dictamenId) {
-  const color = DICTAMEN_MAP[dictamenId]?.color || "#1a5338";
+  const color = DICTAMEN_MAP[dictamenId]?.color || "var(--dictamen-cp1)";
 
   return L.divIcon({
     className: "predio-pin-wrap",
@@ -77,8 +77,8 @@ function pickerIcon() {
  */
 function buildPopup(predio, withAction) {
   const dictamen = DICTAMEN_MAP[predio.dictamen];
-  const color = dictamen?.color || "#1a5338";
-  const soft = dictamen?.suave || "#e3f2e9";
+  const color = dictamen?.color || "var(--dictamen-cp1)";
+  const soft = dictamen?.suave || "var(--dictamen-cp1-soft)";
   const meta = predio.fechaCorte
     ? `${formatNumber(predio.hectareas)} ha · corte ${formatDate(
         predio.fechaCorte,
@@ -216,12 +216,14 @@ export default function PredioMap({
     }
   }, [predios]);
 
+  const mapHeight = `clamp(220px, 46vw, ${height}px)`;
+
   return (
-    <div className="map-frame" style={{ height }}>
+    <div className="map-frame" style={{ height: mapHeight }}>
       <div
         ref={containerRef}
         className="predio-map"
-        style={{ height }}
+        style={{ height: mapHeight }}
         role="application"
         aria-label="Mapa de predios dictaminados"
       />
@@ -345,15 +347,17 @@ export function LocationPicker({
     }
   }, [value]);
 
+  const mapHeight = `clamp(200px, 52vw, ${height}px)`;
+
   return (
     <div
       className={`location-picker-shell${invalid ? " invalid" : ""}`}
-      style={{ height }}
+      style={{ height: mapHeight }}
     >
       <div
         ref={containerRef}
         className="location-picker"
-        style={{ height }}
+        style={{ height: mapHeight }}
         role="application"
         aria-label="Selector de ubicación del predio"
       />

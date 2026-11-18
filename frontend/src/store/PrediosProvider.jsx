@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildSeed } from "../data/seed";
+import { migratePredios, normalizePredio } from "../data/predioModel";
 import { PrediosContext } from "./prediosContext";
 
 /** Clave de `localStorage` donde se persiste la bitácora. */
@@ -35,7 +36,7 @@ function readStored() {
 
     if (!Array.isArray(parsed)) return null;
 
-    return parsed.filter(isPredio);
+    return migratePredios(parsed.filter(isPredio), buildSeed());
   } catch (error) {
     console.warn("No se pudieron leer los predios guardados.", error);
     return null;
@@ -89,7 +90,12 @@ export default function PrediosProvider({ children }) {
    */
   const addPredio = useCallback((data) => {
     const now = new Date().toISOString();
-    const nuevo = { ...data, id: makeId(), createdAt: now, updatedAt: now };
+    const nuevo = normalizePredio({
+      ...data,
+      id: makeId(),
+      createdAt: now,
+      updatedAt: now,
+    });
 
     setPredios((prev) => [nuevo, ...prev]);
 
@@ -107,12 +113,12 @@ export default function PrediosProvider({ children }) {
     setPredios((prev) =>
       prev.map((predio) =>
         predio.id === id
-          ? {
+          ? normalizePredio({
               ...predio,
               ...data,
               id: predio.id,
               updatedAt: new Date().toISOString(),
-            }
+            })
           : predio,
       ),
     );

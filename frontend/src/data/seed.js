@@ -9,6 +9,7 @@
  */
 
 import { CULTIVO_ACTIVO, DIAS_CORTE } from "./constants";
+import { zonaDeLocalidad } from "./catalogos";
 import { addDaysISO, todayISO } from "../utils/dates";
 
 /**
@@ -17,6 +18,11 @@ import { addDaysISO, todayISO } from "../utils/dates";
  * @property {string} nombre - Nombre del productor.
  * @property {string} telefono - Teléfono de contacto.
  * @property {number} hectareas - Superficie en hectáreas.
+ * @property {string} localidad - Localidad del predio.
+ * @property {string} variedad - Identificador de la variedad sembrada.
+ * @property {string} regimenHidrico - `temporal` o `riego`.
+ * @property {string} paqueteTecnologico - `si` o `no`.
+ * @property {string} observaciones - Observaciones generales del predio.
  * @property {number} siembraAtras - Días transcurridos desde la siembra.
  * @property {number} muestraPlantas - Plantas contadas en la muestra.
  * @property {number} muestraMetros - Metros lineales muestreados.
@@ -39,6 +45,12 @@ const PRODUCTORES = [
     nombre: "José Luis Ramírez",
     telefono: "33 1452 8890",
     hectareas: 32,
+    localidad: "Oriental",
+    variedad: "hibrido",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico completo: semilla certificada, fertilización de fondo y control de plagas. Sin incidencias.",
     siembraAtras: 120,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -55,6 +67,12 @@ const PRODUCTORES = [
     nombre: "José Luis Ramírez",
     telefono: "33 1452 8890",
     hectareas: 18,
+    localidad: "Cuapiaxtla",
+    variedad: "faisan",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Se aplicó paquete con densidad de 62 mil plantas por hectárea. Buen cierre de calle, sin problemas de plagas.",
     siembraAtras: 160,
     muestraPlantas: 44,
     muestraMetros: 10,
@@ -71,6 +89,12 @@ const PRODUCTORES = [
     nombre: "María Fernanda Ochoa",
     telefono: "667 218 4471",
     hectareas: 48,
+    localidad: "Nopalucan",
+    variedad: "comanche",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Riego por goteo y fertilización foliar cada 15 días. Mazorca pareja, lista para dictamen.",
     siembraAtras: 95,
     muestraPlantas: 46,
     muestraMetros: 10,
@@ -87,6 +111,12 @@ const PRODUCTORES = [
     nombre: "María Fernanda Ochoa",
     telefono: "667 218 4471",
     hectareas: 26,
+    localidad: "Libres",
+    variedad: "hibrido",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Sin paquete tecnológico: semilla de la campaña anterior y control manual de maleza. Se recomienda muestreo más frecuente.",
     siembraAtras: 140,
     muestraPlantas: 43,
     muestraMetros: 10,
@@ -103,6 +133,12 @@ const PRODUCTORES = [
     nombre: "Ricardo Beltrán",
     telefono: "462 129 7734",
     hectareas: 55,
+    localidad: "Perote",
+    variedad: "faisan",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete completo con análisis de suelo previo. El productor reporta buena respuesta al nitrógeno.",
     siembraAtras: 170,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -119,6 +155,12 @@ const PRODUCTORES = [
     nombre: "Ricardo Beltrán",
     telefono: "462 129 7734",
     hectareas: 22,
+    localidad: "Altzayanca",
+    variedad: "criollo",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Maíz criollo de la región, sin insumos externos. Interesa conservar la semilla para la siguiente campaña.",
     siembraAtras: 75,
     muestraPlantas: 44,
     muestraMetros: 10,
@@ -135,6 +177,12 @@ const PRODUCTORES = [
     nombre: "Ana Sofía Delgado",
     telefono: "351 205 6682",
     hectareas: 12,
+    localidad: "El Carmen",
+    variedad: "comanche",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico con semilla tratada. Excelente llenado de grano en la muestra de campo.",
     siembraAtras: 110,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -151,6 +199,12 @@ const PRODUCTORES = [
     nombre: "Ana Sofía Delgado",
     telefono: "351 205 6682",
     hectareas: 15,
+    localidad: "Grajales",
+    variedad: "hibrido",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Se completó el paquete con control de maleza, pero la lluvia llegó tarde. Vigilar humedad al ensilar.",
     siembraAtras: 55,
     muestraPlantas: 42,
     muestraMetros: 10,
@@ -167,6 +221,12 @@ const PRODUCTORES = [
     nombre: "Héctor Manuel Cruz",
     telefono: "722 318 9056",
     hectareas: 8,
+    localidad: "San José Ozumba",
+    variedad: "albatros",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Predio pequeño sin paquete tecnológico. El productor pide apoyo con análisis de suelo para la próxima campaña.",
     siembraAtras: 150,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -183,6 +243,12 @@ const PRODUCTORES = [
     nombre: "Héctor Manuel Cruz",
     telefono: "722 318 9056",
     hectareas: 10,
+    localidad: "Ixtenco",
+    variedad: "faisan",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico parcial: semilla y fertilizante, sin control químico de plagas. Monitoreo semanal.",
     siembraAtras: 130,
     muestraPlantas: 44,
     muestraMetros: 10,
@@ -199,6 +265,12 @@ const PRODUCTORES = [
     nombre: "Laura Patricia Núñez",
     telefono: "775 143 2208",
     hectareas: 30,
+    localidad: "Nuevo México",
+    variedad: "hibrido",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico completo con riego de auxilio. Drenaje natural bueno y acceso amplio.",
     siembraAtras: 100,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -215,6 +287,12 @@ const PRODUCTORES = [
     nombre: "Laura Patricia Núñez",
     telefono: "775 143 2208",
     hectareas: 14,
+    localidad: "Chapultepec",
+    variedad: "criollo",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Material criollo sin paquete tecnológico. Presencia de maleza y variación de tamaño entre plantas.",
     siembraAtras: 180,
     muestraPlantas: 43,
     muestraMetros: 10,
@@ -231,6 +309,12 @@ const PRODUCTORES = [
     nombre: "Miguel Ángel Torres",
     telefono: "427 118 5540",
     hectareas: 20,
+    localidad: "Cuapiaxtla",
+    variedad: "comanche",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico con fertirriego. Buena uniformidad; se sugiere repetir el esquema el próximo ciclo.",
     siembraAtras: 85,
     muestraPlantas: 46,
     muestraMetros: 10,
@@ -247,6 +331,12 @@ const PRODUCTORES = [
     nombre: "Miguel Ángel Torres",
     telefono: "427 118 5540",
     hectareas: 9,
+    localidad: "Zitlaltepec",
+    variedad: "albatros",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Sin paquete tecnológico y con suelo arenoso. Programar muestreo adicional antes del corte.",
     siembraAtras: 65,
     muestraPlantas: 44,
     muestraMetros: 10,
@@ -263,6 +353,12 @@ const PRODUCTORES = [
     nombre: "Claudia Estrada",
     telefono: "222 517 3309",
     hectareas: 16,
+    localidad: "Coyotepec",
+    variedad: "faisan",
+    regimenHidrico: "riego",
+    paqueteTecnologico: "si",
+    observaciones:
+      "Paquete tecnológico completo y forraje en punto óptimo. Programar corte en las próximas 48 horas.",
     siembraAtras: 45,
     muestraPlantas: 45,
     muestraMetros: 10,
@@ -279,6 +375,12 @@ const PRODUCTORES = [
     nombre: "Claudia Estrada",
     telefono: "222 517 3309",
     hectareas: 11,
+    localidad: "Santa María Ixtiyucal",
+    variedad: "hibrido",
+    regimenHidrico: "temporal",
+    paqueteTecnologico: "no",
+    observaciones:
+      "Sin paquete tecnológico por falta de financiamiento. Hay obras en la carretera; confirmar ruta alterna.",
     siembraAtras: 155,
     muestraPlantas: 42,
     muestraMetros: 10,
@@ -312,6 +414,12 @@ export function buildSeed() {
       nombre: item.nombre,
       telefono: item.telefono,
       hectareas: item.hectareas,
+      localidad: item.localidad,
+      zona: zonaDeLocalidad(item.localidad),
+      variedad: item.variedad,
+      regimenHidrico: item.regimenHidrico,
+      paqueteTecnologico: item.paqueteTecnologico,
+      observaciones: item.observaciones,
       fechaSiembra,
       fechaCorte: addDaysISO(fechaSiembra, DIAS_CORTE),
       muestraPlantas: item.muestraPlantas,

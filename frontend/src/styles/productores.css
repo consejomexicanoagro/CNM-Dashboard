@@ -1,0 +1,998 @@
+/* =========================================================
+   Productores · semáforo, ranking, calidad y zonas
+   ========================================================= */
+
+/* ---------- Formulario: grupos segmentados ---------- */
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  width: fit-content;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 15px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.segment input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.segment:hover {
+  color: var(--ink-2);
+}
+
+.segment:focus-within {
+  outline: 2px solid var(--green-500);
+  outline-offset: 2px;
+}
+
+.segment.is-selected {
+  background: var(--surface);
+  color: var(--green-700);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Semaforo ---------- */
+
+.semaforo-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.semaforo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--s-soft, var(--surface-2));
+}
+
+.semaforo-col-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.semaforo-col-head h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.semaforo-count {
+  margin-left: auto;
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--s-color);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.semaforo-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--s-color, var(--green-500));
+  box-shadow: 0 0 0 3px var(--s-soft, transparent);
+}
+
+.semaforo-desc {
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.semaforo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.semaforo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.semaforo-item:hover {
+  background: var(--tile-hover);
+}
+
+.semaforo-name {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.semaforo-meta {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.semaforo-empty {
+  color: var(--muted-2);
+  font-size: 10.5px;
+}
+
+.semaforo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--s-soft, var(--surface-2));
+  color: var(--s-color, var(--ink-2));
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.semaforo-pill .semaforo-dot {
+  box-shadow: none;
+}
+
+.semaforo-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.semaforo-summary-row {
+  display: grid;
+  grid-template-columns: auto auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--s-soft);
+}
+
+.semaforo-summary-count {
+  color: var(--s-color);
+  font-size: 18px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.semaforo-summary-name {
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.semaforo-summary-list {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ---------- Ranking ---------- */
+
+.ranking-table {
+  min-width: 760px;
+}
+
+.rank-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-badge.is-top {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+
+.producer-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.producer-link:hover {
+  color: var(--green-700);
+  text-decoration: underline;
+}
+
+.rank-quality {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ranking-empty {
+  color: var(--muted-2);
+  font-size: 11.5px;
+  padding: 14px 0;
+}
+
+/* ---------- Productores por calidad ---------- */
+
+.calidad-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.calidad-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--q-color);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.calidad-group-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.calidad-group-head h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.calidad-group-head p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.calidad-producer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calidad-producer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, transform 0.14s ease;
+}
+
+.calidad-producer:hover {
+  border-color: var(--green-500);
+  transform: translateY(-1px);
+}
+
+.calidad-producer-name {
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.calidad-producer-meta {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.calidad-empty {
+  color: var(--muted-2);
+  font-size: 10.5px;
+}
+
+/* ---------- Zonas ---------- */
+
+.zonas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zona-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.zona-row:hover {
+  background: var(--surface-2);
+}
+
+.zona-row.is-active {
+  border-color: var(--green-500);
+  background: var(--row-active);
+}
+
+.zona-badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--z-soft);
+  color: var(--z-color);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.zona-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.zona-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.zona-top strong {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.zona-top span {
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.zona-bar {
+  display: block;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.zona-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.zona-meta {
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.zona-localidades {
+  overflow: hidden;
+  color: var(--muted-2);
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zona-pct {
+  flex: 0 0 auto;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Detalle por predio ---------- */
+
+.predio-detail-table {
+  min-width: 860px;
+}
+
+.predio-detail-table tbody tr {
+  cursor: pointer;
+}
+
+/* ---------- Observaciones ---------- */
+
+.obs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pkg-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pkg-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.pkg-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green-600), var(--green-500));
+  transition: width 0.3s ease;
+}
+
+.pkg-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 10px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.pkg-meta strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.obs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.obs-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, transform 0.14s ease;
+}
+
+.obs-item:hover {
+  border-color: var(--green-500);
+  transform: translateY(-1px);
+}
+
+.obs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.obs-predio {
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.obs-text {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.obs-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-2);
+  font-size: 10px;
+}
+
+/* ---------- Paneles por productor ---------- */
+
+.productor-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.productor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--s-color);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.productor-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.productor-id {
+  flex: 1;
+  min-width: 0;
+}
+
+.productor-id h3 {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productor-id p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+}
+
+.productor-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+.productor-score strong {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.productor-score small {
+  color: var(--muted-2);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.productor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.tag.is-on,
+.pkg-tag.is-on {
+  border-color: var(--green-soft-border);
+  background: var(--green-100);
+  color: var(--green-700);
+}
+
+.tag-zone {
+  border-color: var(--zone-tag-border);
+  background: var(--zone-tag-bg);
+  color: var(--zone-tag-color);
+}
+
+.productor-predios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 9px;
+}
+
+.predio-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, transform 0.14s ease;
+}
+
+.predio-tile:hover {
+  border-color: var(--green-500);
+  transform: translateY(-1px);
+}
+
+.predio-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.predio-tile-name {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.predio-tile-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.predio-tile-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--row-line);
+  border-bottom: 1px solid var(--row-line);
+}
+
+.predio-tile-stats > span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.predio-tile-stats small {
+  color: var(--muted-2);
+  font-size: 8.5px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.predio-tile-stats strong {
+  color: var(--ink);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.predio-tile-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.predio-tile-foot > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pkg-tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+/* ---------- Refuerzos de otras vistas ---------- */
+
+.drawer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.record-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1240px) {
+  .page-head {
+    flex-wrap: wrap;
+  }
+
+  .page-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1000px) {
+  .semaforo-board,
+  .calidad-groups {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .productor-head {
+    flex-wrap: wrap;
+  }
+
+  .productor-score {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .semaforo-summary-row {
+    grid-template-columns: auto auto auto;
+  }
+
+  .semaforo-summary-list {
+    display: none;
+  }
+
+  .zona-localidades {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .productor-predios {
+    grid-template-columns: 1fr;
+  }
+
+  .zona-row {
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .semaforo-summary-row {
+    gap: 6px;
+    padding: 9px 10px;
+  }
+
+  .segmented {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .semaforo-col,
+  .calidad-group,
+  .productor-panel {
+    padding: 12px;
+  }
+
+  .productor-head {
+    gap: 8px;
+  }
+
+  .productor-score strong {
+    font-size: 18px;
+  }
+
+  .predio-tile {
+    padding: 10px;
+  }
+
+  .productor-predios {
+    gap: 8px;
+  }
+
+  .segment {
+    padding: 6px 11px;
+    font-size: 11px;
+  }
+}
+
+/* ---------------------------------------------------------
+   Tablas de ranking y detalle como tarjetas en móvil
+   Evitan el desplazamiento horizontal dentro del contenido.
+   --------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .ranking-table,
+  .predio-detail-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ranking-table thead,
+  .predio-detail-table thead {
+    display: none;
+  }
+
+  .ranking-table tbody,
+  .predio-detail-table tbody {
+    display: block;
+  }
+
+  .ranking-table tr,
+  .predio-detail-table tr {
+    display: grid;
+    gap: 10px 12px;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--row-line);
+  }
+
+  .ranking-table tr:last-child,
+  .predio-detail-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .ranking-table td,
+  .predio-detail-table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .ranking-table td[data-label]::before,
+  .predio-detail-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted-2);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Ranking: posición y productor arriba; indicadores debajo. */
+
+  .ranking-table tr {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .ranking-table td:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .ranking-table td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .ranking-table td:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .ranking-table td:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .ranking-table td:nth-child(5) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .ranking-table td:nth-child(6) {
+    grid-column: 1;
+    grid-row: 4;
+  }
+
+  .ranking-table td:nth-child(7) {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .ranking-table td:nth-child(8) {
+    grid-column: 1 / -1;
+    grid-row: 5;
+  }
+
+  /* Detalle: predio, productor y zona como encabezado. */
+
+  .predio-detail-table tr {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .predio-detail-table td:nth-child(1),
+  .predio-detail-table td:nth-child(2),
+  .predio-detail-table td:nth-child(3),
+  .predio-detail-table td:nth-child(8) {
+    grid-column: 1 / -1;
+  }
+
+  .predio-detail-table td:nth-child(1) strong {
+    font-size: 13px;
+  }
+}
